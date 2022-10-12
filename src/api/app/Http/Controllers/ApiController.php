@@ -198,7 +198,9 @@ class ApiController extends Controller
                     'third_party_user_info' => $ret->getBody()
                 ], [
                     'name' => $userInfo['name'],
-                    'email' => $userInfo['email']
+                    'email' => $userInfo['email'],
+                    'image' => '',
+                    'profile' => ''
                 ]);
                 $user->touch();
                 break;

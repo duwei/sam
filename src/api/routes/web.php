@@ -24,11 +24,11 @@ $router->group(['middleware' => ['throttle:30,1']], function () use ($router) {
 
 $router->get('login', function () use ($router) {
     $query = http_build_query([
-        'client_id' => '3',
-        'redirect_uri' => 'http://localhost:9090/api/callback',
+        'client_id' => '5',
+        'redirect_uri' => 'http://211.110.209.62:9191/api/callback',
         'response_type' => 'code',
         'state' => 'service_id=1',
         'scope' => '*',
     ]);
-    return redirect('http://localhost:8080/api/oauth/authorize?' . $query);
+    return redirect('http://211.110.209.62:8081/api/oauth/authorize?' . $query);
 });
