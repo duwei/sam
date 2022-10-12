@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 
+use Illuminate\Support\Str;
 use OpenApi\Annotations\Get;
 use OpenApi\Annotations\Post;
 use OpenApi\Annotations\MediaType;
@@ -20,9 +21,17 @@ use OpenApi\Annotations\Items;
 
 class ApiController extends Controller
 {
+    private array $fields;
+
+    public function __construct()
+    {
+        $this->fields = ['id', 'password'];
+        $this->middleware('auth:api', ['except' => ['register', 'callback', 'success']]);
+    }
     /**
      * @Post (
      *     path="/register",
+     *     tags={"OAuth"},
      *     summary="register account service",
      *     @RequestBody(
      *         @MediaType(
@@ -107,6 +116,7 @@ class ApiController extends Controller
     /**
      * @Get (
      *     path="/callback",
+     *     tags={"OAuth"},
      *     summary="oauth callback api for third party.",
      *     @RequestBody(
      *         @MediaType(
@@ -180,38 +190,156 @@ class ApiController extends Controller
         $tokenInfo = json_decode((string)$ret->getBody(), true);
         switch ($service->third_party->id) {
             case ThirdParty::TESS:
-                $service->token_type = $tokenInfo['token_type'];
-                $service->expires_in = $tokenInfo['expires_in'];
-                $service->access_token = $tokenInfo['access_token'];
-                $service->refresh_token = $tokenInfo['refresh_token'];
-
                 $ret = $http->request('GET', $service->third_party->profile_uri, [
                     'headers' => [
                         'Accept'     => 'application/json',
-                        'Authorization' => 'Bearer '. $service->access_token,
+                        'Authorization' => 'Bearer '. $tokenInfo['access_token'],
                     ]
                 ]);
                 $userInfo = json_decode((string)$ret->getBody(), true);
                 $user = User::firstOrCreate([
                     'third_party_id' => ThirdParty::TESS,
                     'third_party_user_id' => $userInfo['id'],
-                    'third_party_user_info' => $ret->getBody()
                 ], [
+                    'third_party_user_info' => $ret->getBody(),
                     'name' => $userInfo['name'],
                     'email' => $userInfo['email'],
                     'image' => '',
                     'profile' => ''
                 ]);
-                $user->touch();
+
+                $password = Str::uuid();
+                $user->password = app('hash')->make($password);
+                $user->token_type = $tokenInfo['token_type'];
+                $user->expires_in = $tokenInfo['expires_in'];
+                $user->access_token = $tokenInfo['access_token'];
+                $user->refresh_token = $tokenInfo['refresh_token'];
+                $user->save();
+
+                $user->password = $password;
+                $credentials = $user->only($this->fields);
+
+                $token = auth('api')->attempt($credentials);
+                return redirect('/success#' . $token);
                 break;
 //            case ThirdParty::FACEBOOK:
 //                break;
 //            case ThirdParty::GOOGLE:
 //                break;
         }
-        $service->save();
         // todo: add refresh user info tas
         return response_data($user);
     }
-}
 
+    public function success(Request $request)
+    {
+        return 'success';
+    }
+
+    /**
+     * @Get (
+     *     path="/me",
+     *     tags={"Account"},
+     *     summary="user profile",
+     *     security={{"bearerAuth":{}}},
+     *     @Response(
+     *         response="200",
+     *         description="user profile response",
+     *         @MediaType(
+     *             mediaType="application/json",
+     *             @Schema(
+     *                 allOf={
+     *                     @Schema(ref="#/components/schemas/ApiResponse"),
+     *                     @Schema (
+     *                         @Property(
+     *                             property="data",
+     *                             description="response data",
+     *                             ref="#/components/schemas/User"
+     *                         )
+     *                     )
+     *                 }
+     *             )
+     *         )
+     *     )
+     *  )
+     */
+
+    /**
+     * Get the authenticated User.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function me()
+    {
+        return response_data(auth('api')->user());
+    }
+
+    /**
+     * @Post (
+     *     path="/refresh",
+     *     tags={"Account"},
+     *     summary="JWT token refresh",
+     *     security={{"bearerAuth":{}}},
+     *     @Response(
+     *         response="200",
+     *         description="refresh JWT token response",
+     *         @MediaType(
+     *             mediaType="application/json",
+     *             @Schema(
+     *                 allOf={
+     *                     @Schema(ref="#/components/schemas/ApiResponse"),
+     *                     @Schema (
+     *                         @Property(
+     *                             property="data",
+     *                             description="response data",
+     *                             ref="#/components/schemas/JWTToken"
+     *                         )
+     *                     )
+     *                 }
+     *             )
+     *         )
+     *     )
+     *  )
+     */
+    public function refresh()
+    {
+        return $this->respondWithToken(auth('api')->refresh());
+    }
+
+    /**
+     * @Schema(
+     *     schema="JWTToken",
+     *     type="object",
+     *     @Property(
+     *         property="access_token",
+     *         type="string",
+     *         description="access token"
+     *     ),
+     *     @Property(
+     *         property="token_type",
+     *         type="string",
+     *         description="token type"
+     *     ),
+     *     @Property(
+     *         property="expires_in",
+     *         type="integer",
+     *         description="token expiration time"
+     *     )
+     * )
+     */
+    /**
+     * Get the token array structure.
+     *
+     * @param string $token
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function respondWithToken($token)
+    {
+        return response_data([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth('api')->factory()->getTTL() * 60
+        ]);
+    }
+}

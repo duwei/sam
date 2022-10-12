@@ -20,6 +20,10 @@ $router->get('/', function () use ($router) {
 $router->group(['middleware' => ['throttle:30,1']], function () use ($router) {
     $router->post('/register', 'ApiController@register');
     $router->get('/callback', 'ApiController@callback');
+
+    $router->get('/me', 'ApiController@me');
+    $router->get('/success', 'ApiController@success');
+    $router->post('/refresh', 'ApiController@refresh');
 });
 
 $router->get('login', function () use ($router) {

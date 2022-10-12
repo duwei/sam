@@ -18,6 +18,9 @@
     "paths": {
         "/register": {
             "post": {
+                "tags": [
+                    "OAuth"
+                ],
                 "summary": "register account service",
                 "operationId": "04c3e733ba204f28cdadbc1d70395e15",
                 "requestBody": {
@@ -93,7 +96,10 @@
         },
         "/callback": {
             "get": {
-                "summary": "oauth callback api",
+                "tags": [
+                    "OAuth"
+                ],
+                "summary": "oauth callback api for third party.",
                 "operationId": "1de9e0526c7c17306fd664c936462a1b",
                 "requestBody": {
                     "content": {
@@ -143,6 +149,81 @@
                     }
                 }
             }
+        },
+        "/me": {
+            "get": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "user profile",
+                "responses": {
+                    "200": {
+                        "description": "user profile response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/User"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/refresh": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "JWT token refresh",
+                "operationId": "f723eac082e32b1c9d3582638ddb7df3",
+                "responses": {
+                    "200": {
+                        "description": "refresh JWT token response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/JWTToken"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -160,6 +241,23 @@
                     "msg": {
                         "description": "response message",
                         "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "JWTToken": {
+                "properties": {
+                    "access_token": {
+                        "description": "access token",
+                        "type": "string"
+                    },
+                    "token_type": {
+                        "description": "token type",
+                        "type": "string"
+                    },
+                    "expires_in": {
+                        "description": "token expiration time",
+                        "type": "integer"
                     }
                 },
                 "type": "object"

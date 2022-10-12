@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
 use OpenApi\Annotations\Schema;
 use OpenApi\Annotations\Property;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 /**
  * @Schema(
@@ -32,7 +33,7 @@ use OpenApi\Annotations\Property;
  *     )
  * )
  */
-class User extends Model implements AuthenticatableContract, AuthorizableContract
+class User extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject
 {
     use Authenticatable, Authorizable, HasFactory;
 
@@ -42,7 +43,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var string[]
      */
     protected $fillable = [
-        'name', 'email', 'image', 'profile'
+        'name', 'email', 'image', 'profile', 'password',
+        'third_party_id', 'third_party_user_id', 'third_party_user_info'
     ];
 
     /**
@@ -51,7 +53,24 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var string[]
      */
     protected $hidden = [
-        'password', 'email_verified_at', 'remember_token', 'created_at', 'updated_at',
-        'third_party_id', 'third_party_user_id', 'third_party_info'
+        'image', 'profile', 'password', 'email_verified_at', 'remember_token', 'created_at', 'updated_at',
+        'third_party_id', 'third_party_user_id', 'third_party_user_info',
+        'access_token', 'token_type', 'expires_in', 'refresh_token'
     ];
+
+    /**
+     * @inheritDoc
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
 }
