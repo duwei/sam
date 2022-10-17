@@ -19,8 +19,8 @@ class ThirdPartySeeder extends Seeder
         ThirdParty::insert([
             [
                 'name' => 'Google',
-                'oauth_uri'     => 'https://google.com/oauth',
-                'profile_uri'     => 'https://google.com/profile',
+                'oauth_uri'     => 'https://oauth2.googleapis.com/token',
+                'profile_uri'     => 'https://oauth2.googleapis.com/tokeninfo',
             ],
             [
                 'name' => 'Facebook',

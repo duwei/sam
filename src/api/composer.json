@@ -7,6 +7,7 @@
     "require": {
         "php": "^8.0",
         "darkaonline/swagger-lume": "^9.0",
+        "doctrine/dbal": "^3.4",
         "guzzlehttp/guzzle": "^7.5",
         "laravel/lumen-framework": "^9.0",
         "tymon/jwt-auth": "^1.0"

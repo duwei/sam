@@ -36,3 +36,16 @@ $router->get('login', function () use ($router) {
     ]);
     return redirect('http://211.110.209.62:8081/api/oauth/authorize?' . $query);
 });
+
+$router->get('google_login', function () use ($router) {
+    $query = http_build_query([
+        'client_id' => '272393273254-8tvks1u0o0m64er3t04kf2tk9lbda366.apps.googleusercontent.com',
+//        'redirect_uri' => 'https://tessverso.io/sam/api/callback',
+        'redirect_uri' => 'http://localhost:9090/api/callback',
+        'response_type' => 'code',
+        'state' => 'service_id=2',
+        'access_type' => 'offline',
+        'scope' => 'openid profile email',
+    ]);
+    return redirect('https://accounts.google.com/o/oauth2/v2/auth?' . $query);
+});

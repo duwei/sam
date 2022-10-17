@@ -7,9 +7,12 @@ use App\Models\ThirdParty;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 use Illuminate\Support\Str;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Parser;
 use OpenApi\Annotations\Get;
 use OpenApi\Annotations\Post;
 use OpenApi\Annotations\MediaType;
@@ -18,6 +21,13 @@ use OpenApi\Annotations\RequestBody;
 use OpenApi\Annotations\Response;
 use OpenApi\Annotations\Schema;
 use OpenApi\Annotations\Items;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Facades\JWTProvider;
+use Tymon\JWTAuth\JWT;
+use Tymon\JWTAuth\Manager;
+use Tymon\JWTAuth\Payload;
+use Tymon\JWTAuth\Token;
 
 class ApiController extends Controller
 {
@@ -224,11 +234,37 @@ class ApiController extends Controller
                 break;
 //            case ThirdParty::FACEBOOK:
 //                break;
-//            case ThirdParty::GOOGLE:
-//                break;
+            case ThirdParty::GOOGLE:
+                $parser = new Parser(new JoseEncoder());
+                $userInfo = $parser->parse($tokenInfo['id_token'])->claims()->all();
+                $user = User::firstOrCreate([
+                    'third_party_id' => ThirdParty::GOOGLE,
+                    'third_party_user_id' => $userInfo['sub'],
+                ], [
+                    'third_party_user_info' => json_encode($userInfo),
+                    'name' => $userInfo['name'],
+                    'email' => $userInfo['email'],
+                    'image' => $userInfo['picture'],
+                    'profile' => ''
+                ]);
+
+                $password = Str::uuid();
+                $user->password = app('hash')->make($password);
+                $user->token_type = $tokenInfo['token_type'];
+                $user->expires_in = $tokenInfo['expires_in'];
+                $user->access_token = $tokenInfo['access_token'];
+//                $user->refresh_token = $tokenInfo['refresh_token'];
+                $user->save();
+
+                $user->password = $password;
+                $credentials = $user->only($this->fields);
+
+                $token = auth('api')->attempt($credentials);
+                return redirect('/success#' . $token);
+                break;
         }
-        // todo: add refresh user info tas
-        return response_data($user);
+        // todo: add refresh user info task
+        return response_code(ApiResponse::BAD_REQUEST);
     }
 
     public function success(Request $request)
