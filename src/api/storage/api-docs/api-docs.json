@@ -16,84 +16,6 @@
         }
     ],
     "paths": {
-        "/register": {
-            "post": {
-                "tags": [
-                    "OAuth"
-                ],
-                "summary": "register account service",
-                "operationId": "04c3e733ba204f28cdadbc1d70395e15",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "third_party_id": {
-                                        "description": "third party id: 1 => Google, 2 => Facebook, 3 => Tess",
-                                        "type": "number"
-                                    },
-                                    "client_id": {
-                                        "description": "client id",
-                                        "type": "string"
-                                    },
-                                    "client_secret": {
-                                        "description": "client secret",
-                                        "type": "string"
-                                    },
-                                    "redirect_uri": {
-                                        "description": "redirect uri",
-                                        "type": "string"
-                                    },
-                                    "scope": {
-                                        "description": "scope",
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object",
-                                "example": {
-                                    "third_party_id": "3",
-                                    "client_id": "4",
-                                    "client_secret": "XCMx7GWjvHqqF72IzGjcNoLh9N59ksfK1rHcyPhj",
-                                    "redirect_uri": "http://localhost:8080/callback",
-                                    "scope": "*"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "register user response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "allOf": [
-                                        {
-                                            "properties": {
-                                                "data": {
-                                                    "description": "response data",
-                                                    "properties": {
-                                                        "service_id": {
-                                                            "description": "service state id",
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/ApiResponse"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/callback": {
             "get": {
                 "tags": [
@@ -224,6 +146,240 @@
                     }
                 ]
             }
+        },
+        "/services": {
+            "get": {
+                "tags": [
+                    "Service"
+                ],
+                "summary": "all services list",
+                "operationId": "96950feb4aaa0ea9dd7db3b3838bd669",
+                "responses": {
+                    "200": {
+                        "description": "registered services response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "description": "response data",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Service"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/service/register": {
+            "post": {
+                "tags": [
+                    "Service"
+                ],
+                "summary": "register account service",
+                "operationId": "199c9670b83496594e79815bbb355e4b",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "third_party_id": {
+                                        "description": "third party id: 1 => Google, 2 => Facebook, 3 => Tess",
+                                        "type": "number"
+                                    },
+                                    "client_id": {
+                                        "description": "client id, from third party",
+                                        "type": "string"
+                                    },
+                                    "client_secret": {
+                                        "description": "client secret, from third party",
+                                        "type": "string"
+                                    },
+                                    "redirect_uri": {
+                                        "description": "redirect uri, it should be set to: https://tessverso.io/sam/api/callback",
+                                        "type": "string"
+                                    },
+                                    "client_uri": {
+                                        "description": "client uri, optional, if empty,  '/success' will be used",
+                                        "type": "string"
+                                    },
+                                    "scope": {
+                                        "description": "scope",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "third_party_id": "3",
+                                    "client_id": "4",
+                                    "client_secret": "XCMx7GWjvHqqF72IzGjcNoLh9N59ksfK1rHcyPhj",
+                                    "redirect_uri": "https://tessverso.io/sam/api/callback",
+                                    "client_uri": "http://localhost:3000/googlelogin/redirect",
+                                    "scope": "*"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "register user response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "description": "response data",
+                                                    "properties": {
+                                                        "service_id": {
+                                                            "description": "service state id",
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/service/update": {
+            "post": {
+                "tags": [
+                    "Service"
+                ],
+                "summary": "update service",
+                "operationId": "6a572e20f926ac6182bc4025c6bb82f3",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "description": "service id",
+                                        "type": "number"
+                                    },
+                                    "third_party_id": {
+                                        "description": "third party id: 1 => Google, 2 => Facebook, 3 => Tess",
+                                        "type": "number"
+                                    },
+                                    "client_id": {
+                                        "description": "client id",
+                                        "type": "string"
+                                    },
+                                    "client_secret": {
+                                        "description": "client secret",
+                                        "type": "string"
+                                    },
+                                    "redirect_uri": {
+                                        "description": "redirect uri",
+                                        "type": "string"
+                                    },
+                                    "scope": {
+                                        "description": "scope",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "id": "1",
+                                    "third_party_id": "3",
+                                    "client_id": "4",
+                                    "client_secret": "XCMx7GWjvHqqF72IzGjcNoLh9N59ksfK1rHcyPhj",
+                                    "redirect_uri": "http://localhost:8080/callback",
+                                    "scope": "*"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "inquiry categories response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/service/delete": {
+            "post": {
+                "tags": [
+                    "Service"
+                ],
+                "summary": "delete service",
+                "operationId": "698ceb7f0d2b5374dc4c267668e59616",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "description": "service id",
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "id": 1
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "inquiry categories response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -258,6 +414,51 @@
                     "expires_in": {
                         "description": "token expiration time",
                         "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "Service": {
+                "properties": {
+                    "id": {
+                        "description": "service id",
+                        "type": "number"
+                    },
+                    "third_party": {
+                        "$ref": "#/components/schemas/ThirdParty"
+                    },
+                    "client_id": {
+                        "description": "client id",
+                        "type": "string"
+                    },
+                    "client_secret": {
+                        "description": "client secret",
+                        "type": "string"
+                    },
+                    "redirect_uri": {
+                        "description": "redirect uri",
+                        "type": "string"
+                    },
+                    "scope": {
+                        "description": "scope",
+                        "type": "string"
+                    },
+                    "client_uri": {
+                        "description": "client uri",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ThirdParty": {
+                "properties": {
+                    "id": {
+                        "description": "third party id",
+                        "type": "number"
+                    },
+                    "name": {
+                        "description": "third party name",
+                        "type": "string"
                     }
                 },
                 "type": "object"

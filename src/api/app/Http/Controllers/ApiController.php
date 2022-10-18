@@ -39,91 +39,6 @@ class ApiController extends Controller
         $this->middleware('auth:api', ['except' => ['register', 'callback', 'success']]);
     }
     /**
-     * @Post (
-     *     path="/register",
-     *     tags={"OAuth"},
-     *     summary="register account service",
-     *     @RequestBody(
-     *         @MediaType(
-     *             mediaType="application/json",
-     *             @Schema(
-     *                type="object",
-     *                @Property(
-     *                    property="third_party_id",
-     *                    type="number",
-     *                    description="third party id: 1 => Google, 2 => Facebook, 3 => Tess",
-     *                ),
-     *                @Property(
-     *                  property="client_id",
-     *                  description="client id",
-     *                  type="string"
-     *                ),
-     *                @Property(
-     *                  property="client_secret",
-     *                  description="client secret",
-     *                  type="string"
-     *                ),
-     *                @Property(
-     *                  property="redirect_uri",
-     *                  description="redirect uri",
-     *                  type="string"
-     *                ),
-     *                @Property(
-     *                  property="scope",
-     *                  description="scope",
-     *                  type="string"
-     *                ),
-     *                example={
-     *                 "third_party_id": "3",
-     *                 "client_id": "4",
-     *                 "client_secret": "XCMx7GWjvHqqF72IzGjcNoLh9N59ksfK1rHcyPhj",
-     *                 "redirect_uri": "http://localhost:8080/callback",
-     *                 "scope": "*"
-     *                }
-     *             )
-     *          )
-     *     ),
-     *     @Response(
-     *         response="200",
-     *         description="register user response",
-     *         @MediaType(
-     *             mediaType="application/json",
-     *             @Schema(
-     *                 allOf={
-     *                     @Schema(ref="#/components/schemas/ApiResponse"),
-     *                     @Schema (
-     *                         @Property(
-     *                             property="data",
-     *                             description="response data",
-     *                                    type="object",
-     *                                    @Property(
-     *                                      property="service_id",
-     *                                      description="service state id",
-     *                                      type="string"
-     *                                    ),
-     *                         )
-     *                     )
-     *                 }
-     *             )
-     *         )
-     *     )
-     *  )
-     */
-    public function register(Request $request)
-    {
-        $this->validate($request, [
-            'third_party_id' => 'required|exists:third_parties,id',
-            'client_id' => 'required|string',
-            'client_secret' => 'required|string',
-            'redirect_uri' => 'required|string',
-            'scope' => 'required|string',
-        ]);
-        $service = Service::create($request->all());
-
-        return response_data(['service_id' => $service->id]);
-    }
-
-    /**
      * @Get (
      *     path="/callback",
      *     tags={"OAuth"},
@@ -230,8 +145,8 @@ class ApiController extends Controller
                 $credentials = $user->only($this->fields);
 
                 $token = auth('api')->attempt($credentials);
-                return redirect('/success#' . $token);
-                break;
+                $successUri = is_null($service->client_uri) ? '/success' : $service->client_uri;
+                return redirect($successUri . '#' . $token);
 //            case ThirdParty::FACEBOOK:
 //                break;
             case ThirdParty::GOOGLE:
@@ -260,8 +175,8 @@ class ApiController extends Controller
                 $credentials = $user->only($this->fields);
 
                 $token = auth('api')->attempt($credentials);
-                return redirect('/success#' . $token);
-                break;
+                $successUri = is_null($service->client_uri) ? '/success' : $service->client_uri;
+                return redirect($successUri . '#' . $token);
         }
         // todo: add refresh user info task
         return response_code(ApiResponse::BAD_REQUEST);

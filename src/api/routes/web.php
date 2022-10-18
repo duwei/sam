@@ -18,12 +18,17 @@ $router->get('/', function () use ($router) {
 });
 
 $router->group(['middleware' => ['throttle:30,1']], function () use ($router) {
-    $router->post('/register', 'ApiController@register');
     $router->get('/callback', 'ApiController@callback');
 
     $router->get('/me', 'ApiController@me');
     $router->get('/success', 'ApiController@success');
     $router->post('/refresh', 'ApiController@refresh');
+
+    $router->get('/services', 'ServiceController@index');
+    $router->post('/service/register', 'ServiceController@create');
+    $router->post('/service/update', 'ServiceController@update');
+    $router->post('/service/delete', 'ServiceController@delete');
+
 });
 
 $router->get('login', function () use ($router) {
