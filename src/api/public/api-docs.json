@@ -1,0 +1,492 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Api",
+        "description": "Api documentation",
+        "contact": {
+            "name": "duwei",
+            "email": "duweiwork@gmail.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/sam/api",
+            "description": "development"
+        }
+    ],
+    "paths": {
+        "/sam/callback": {
+            "get": {
+                "tags": [
+                    "OAuth"
+                ],
+                "summary": "oauth callback api for third party.",
+                "operationId": "1de9e0526c7c17306fd664c936462a1b",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "code": {
+                                        "description": "callback code",
+                                        "type": "string"
+                                    },
+                                    "state": {
+                                        "description": "callback state",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "code": "def50200d92a61b414fbe81d409f3698c30eb7a549faf69aae0d451c6f766d8bfcb46056c94932ce038a9260e81668c61c7b3c6f90c4ec32048f6dc5ccd1a9bf694fd73ef672bfff26bbf0c030391722340d34b37983d8ba27f26e389f6ef06e4480364bbbf9cb35c4f4dd8e7c7d333e36ef7656df98706b07a5d83614102644bae58a694623685ca843ae322360e67a3df026e6d9e717cbde0b8b803b954d7077345b78eb96ef0a5f4fa3ed418c8abbc6cbfffe66d96badc17895d8bf2913869189f1da75d4b67bcfeaa6a9aa5482b623ac83dba639d172a12510ce4dae91d581ce9ac744a3d80159eb4cbd136b0d51f07b03c27117c158b009dd5cdbd671a662b58020bf7c35ac7534d73c8be0976b40ccfb1c68246fd0d0bad07c6b7fba4c692b411ed885bda919ca30c36c5459ed22934c729e191c68d95e8c71ebb663b6542ec0445b96cedef5468e3face2183c79c68db96d55a69afab1a4df35ca809ad9e1e7003d52",
+                                    "state": "service_id=1"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "register user response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/User"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sam/me": {
+            "get": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "user profile",
+                "responses": {
+                    "200": {
+                        "description": "user profile response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/User"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/sam/refresh": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "JWT token refresh",
+                "operationId": "f723eac082e32b1c9d3582638ddb7df3",
+                "responses": {
+                    "200": {
+                        "description": "refresh JWT token response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/JWTToken"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/sam/services": {
+            "get": {
+                "tags": [
+                    "Service"
+                ],
+                "summary": "all services list",
+                "operationId": "96950feb4aaa0ea9dd7db3b3838bd669",
+                "responses": {
+                    "200": {
+                        "description": "registered services response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "description": "response data",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Service"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sam/service/register": {
+            "post": {
+                "tags": [
+                    "Service"
+                ],
+                "summary": "register account service",
+                "operationId": "199c9670b83496594e79815bbb355e4b",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "third_party_id": {
+                                        "description": "third party id: 1 => Google, 2 => Facebook, 3 => Tess",
+                                        "type": "number"
+                                    },
+                                    "client_id": {
+                                        "description": "client id, from third party",
+                                        "type": "string"
+                                    },
+                                    "client_secret": {
+                                        "description": "client secret, from third party",
+                                        "type": "string"
+                                    },
+                                    "redirect_uri": {
+                                        "description": "redirect uri, it should be set to: https://tessverso.io/sam/api/callback",
+                                        "type": "string"
+                                    },
+                                    "client_uri": {
+                                        "description": "client uri, optional, if empty,  '/success' will be used",
+                                        "type": "string"
+                                    },
+                                    "scope": {
+                                        "description": "scope",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "third_party_id": "3",
+                                    "client_id": "4",
+                                    "client_secret": "XCMx7GWjvHqqF72IzGjcNoLh9N59ksfK1rHcyPhj",
+                                    "redirect_uri": "https://tessverso.io/sam/api/callback",
+                                    "client_uri": "http://localhost:3000/googlelogin/redirect",
+                                    "scope": "*"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "register user response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "description": "response data",
+                                                    "properties": {
+                                                        "service_id": {
+                                                            "description": "service state id",
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sam/service/update": {
+            "post": {
+                "tags": [
+                    "Service"
+                ],
+                "summary": "update service",
+                "operationId": "6a572e20f926ac6182bc4025c6bb82f3",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "description": "service id",
+                                        "type": "number"
+                                    },
+                                    "third_party_id": {
+                                        "description": "third party id: 1 => Google, 2 => Facebook, 3 => Tess",
+                                        "type": "number"
+                                    },
+                                    "client_id": {
+                                        "description": "client id",
+                                        "type": "string"
+                                    },
+                                    "client_secret": {
+                                        "description": "client secret",
+                                        "type": "string"
+                                    },
+                                    "redirect_uri": {
+                                        "description": "redirect uri",
+                                        "type": "string"
+                                    },
+                                    "scope": {
+                                        "description": "scope",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "id": "1",
+                                    "third_party_id": "3",
+                                    "client_id": "4",
+                                    "client_secret": "XCMx7GWjvHqqF72IzGjcNoLh9N59ksfK1rHcyPhj",
+                                    "redirect_uri": "http://localhost:8080/callback",
+                                    "scope": "*"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "inquiry categories response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sam/service/delete": {
+            "post": {
+                "tags": [
+                    "Service"
+                ],
+                "summary": "delete service",
+                "operationId": "698ceb7f0d2b5374dc4c267668e59616",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "description": "service id",
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "id": 1
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "inquiry categories response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ApiResponse": {
+                "required": [
+                    "code",
+                    "msg"
+                ],
+                "properties": {
+                    "code": {
+                        "description": "response code",
+                        "type": "number"
+                    },
+                    "msg": {
+                        "description": "response message",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "JWTToken": {
+                "properties": {
+                    "access_token": {
+                        "description": "access token",
+                        "type": "string"
+                    },
+                    "token_type": {
+                        "description": "token type",
+                        "type": "string"
+                    },
+                    "expires_in": {
+                        "description": "token expiration time",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "Service": {
+                "properties": {
+                    "id": {
+                        "description": "service id",
+                        "type": "number"
+                    },
+                    "third_party": {
+                        "$ref": "#/components/schemas/ThirdParty"
+                    },
+                    "client_id": {
+                        "description": "client id",
+                        "type": "string"
+                    },
+                    "client_secret": {
+                        "description": "client secret",
+                        "type": "string"
+                    },
+                    "redirect_uri": {
+                        "description": "redirect uri",
+                        "type": "string"
+                    },
+                    "scope": {
+                        "description": "scope",
+                        "type": "string"
+                    },
+                    "client_uri": {
+                        "description": "client uri",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ThirdParty": {
+                "properties": {
+                    "id": {
+                        "description": "third party id",
+                        "type": "number"
+                    },
+                    "name": {
+                        "description": "third party name",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "properties": {
+                    "id": {
+                        "description": "user id",
+                        "type": "number"
+                    },
+                    "name": {
+                        "description": "user name",
+                        "type": "string"
+                    },
+                    "email": {
+                        "description": "user email",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    }
+}
