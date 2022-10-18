@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "title": "SAM",
-        "description": "Api documentation",
+        "description": "SAM Api documentation",
         "contact": {
             "name": "duwei",
             "email": "duweiwork@gmail.com"
@@ -11,12 +11,12 @@
     },
     "servers": [
         {
-            "url": "/api",
+            "url": "/api/sam",
             "description": "development"
         }
     ],
     "paths": {
-        "/sam/callback": {
+        "/callback": {
             "get": {
                 "tags": [
                     "OAuth"
@@ -72,7 +72,7 @@
                 }
             }
         },
-        "/sam/me": {
+        "/me": {
             "get": {
                 "tags": [
                     "Account"
@@ -109,7 +109,7 @@
                 ]
             }
         },
-        "/sam/refresh": {
+        "/refresh": {
             "post": {
                 "tags": [
                     "Account"
@@ -147,7 +147,7 @@
                 ]
             }
         },
-        "/sam/services": {
+        "/services": {
             "get": {
                 "tags": [
                     "Service"
@@ -184,7 +184,7 @@
                 }
             }
         },
-        "/sam/service/register": {
+        "/service/register": {
             "post": {
                 "tags": [
                     "Service"
@@ -267,7 +267,7 @@
                 }
             }
         },
-        "/sam/service/update": {
+        "/service/update": {
             "post": {
                 "tags": [
                     "Service"
@@ -335,7 +335,7 @@
                 }
             }
         },
-        "/sam/service/delete": {
+        "/service/delete": {
             "post": {
                 "tags": [
                     "Service"
