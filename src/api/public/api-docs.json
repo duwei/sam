@@ -11,7 +11,7 @@
     },
     "servers": [
         {
-            "url": "/api/sam",
+            "url": "/sam/api",
             "description": "development"
         }
     ],
