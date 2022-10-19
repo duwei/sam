@@ -196,7 +196,8 @@ class ServiceController extends Controller
      *                 "third_party_id": "3",
      *                 "client_id": "4",
      *                 "client_secret": "XCMx7GWjvHqqF72IzGjcNoLh9N59ksfK1rHcyPhj",
-     *                 "redirect_uri": "http://localhost:8080/callback",
+     *                 "redirect_uri": "https://tessverso.io/sam/api/callback",
+     *                 "client_uri": "http://localhost:3000/googlelogin/redirect",
      *                 "scope": "*"
      *                }
      *             )
@@ -224,11 +225,12 @@ class ServiceController extends Controller
     {
         $this->validate($request, [
             'id' => 'required|exists:services,id',
-            'third_party_id' => 'required|exists:third_parties,id',
-            'client_id' => 'required|string',
-            'client_secret' => 'required|string',
-            'redirect_uri' => 'required|string',
-            'scope' => 'required|string',
+            'third_party_id' => 'exists:third_parties,id',
+            'client_id' => 'string',
+            'client_secret' => 'string',
+            'redirect_uri' => 'string',
+            'client_uri' => 'string',
+            'scope' => 'string',
         ]);
         Service::find($request->get('id'))->updateOrFail($request->all());
 

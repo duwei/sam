@@ -56,7 +56,7 @@ use OpenApi\Annotations\Property;
 class Service extends Model
 {
     protected $fillable = [
-        'third_party_id', 'client_id', 'client_secret', 'redirect_uri', 'scope'
+        'third_party_id', 'client_id', 'client_secret', 'redirect_uri', 'scope', 'client_uri'
     ];
 
     public function third_party()
