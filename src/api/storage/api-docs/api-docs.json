@@ -288,15 +288,19 @@
                                         "type": "number"
                                     },
                                     "client_id": {
-                                        "description": "client id",
+                                        "description": "client id, from third party",
                                         "type": "string"
                                     },
                                     "client_secret": {
-                                        "description": "client secret",
+                                        "description": "client secret, from third party",
                                         "type": "string"
                                     },
                                     "redirect_uri": {
-                                        "description": "redirect uri",
+                                        "description": "redirect uri, it should be set to: https://tessverso.io/sam/api/callback",
+                                        "type": "string"
+                                    },
+                                    "client_uri": {
+                                        "description": "client uri, optional, if empty,  '/success' will be used",
                                         "type": "string"
                                     },
                                     "scope": {
@@ -310,7 +314,8 @@
                                     "third_party_id": "3",
                                     "client_id": "4",
                                     "client_secret": "XCMx7GWjvHqqF72IzGjcNoLh9N59ksfK1rHcyPhj",
-                                    "redirect_uri": "http://localhost:8080/callback",
+                                    "redirect_uri": "https://tessverso.io/sam/api/callback",
+                                    "client_uri": "http://localhost:3000/googlelogin/redirect",
                                     "scope": "*"
                                 }
                             }

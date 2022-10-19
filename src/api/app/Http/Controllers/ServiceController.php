@@ -168,17 +168,22 @@ class ServiceController extends Controller
      *                ),
      *                @Property(
      *                  property="client_id",
-     *                  description="client id",
+     *                  description="client id, from third party",
      *                  type="string"
      *                ),
      *                @Property(
      *                  property="client_secret",
-     *                  description="client secret",
+     *                  description="client secret, from third party",
      *                  type="string"
      *                ),
      *                @Property(
      *                  property="redirect_uri",
-     *                  description="redirect uri",
+     *                  description="redirect uri, it should be set to: https://tessverso.io/sam/api/callback",
+     *                  type="string"
+     *                ),
+     *                @Property(
+     *                  property="client_uri",
+     *                  description="client uri, optional, if empty,  '/success' will be used",
      *                  type="string"
      *                ),
      *                @Property(
