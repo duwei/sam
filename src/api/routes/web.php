@@ -22,7 +22,8 @@ $router->group(['middleware' => ['throttle:30,1']], function () use ($router) {
 
     $router->get('/me', 'ApiController@me');
     $router->get('/success', 'ApiController@success');
-    $router->post('/refresh', 'ApiController@refresh');
+    $router->get('/token/verify', 'ApiController@verify');
+    $router->post('/token/refresh', 'ApiController@refresh');
 
     $router->get('/services', 'ServiceController@index');
     $router->post('/service/register', 'ServiceController@create');

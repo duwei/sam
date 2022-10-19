@@ -109,13 +109,43 @@
                 ]
             }
         },
-        "/refresh": {
+        "/token/verify": {
+            "get": {
+                "tags": [
+                    "Token"
+                ],
+                "summary": "verify token",
+                "operationId": "35c7c29cfd030545547ae171c678a850",
+                "responses": {
+                    "200": {
+                        "description": "verify token response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/token/refresh": {
             "post": {
                 "tags": [
-                    "Account"
+                    "Token"
                 ],
                 "summary": "JWT token refresh",
-                "operationId": "f723eac082e32b1c9d3582638ddb7df3",
+                "operationId": "aa4edbe509108c93132d4093948b955b",
                 "responses": {
                     "200": {
                         "description": "refresh JWT token response",

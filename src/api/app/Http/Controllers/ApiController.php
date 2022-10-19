@@ -226,9 +226,35 @@ class ApiController extends Controller
     }
 
     /**
+     * @Get (
+     *     path="/token/verify",
+     *     tags={"Token"},
+     *     summary="verify token",
+     *     security={{"bearerAuth":{}}},
+     *     @Response(
+     *         response="200",
+     *         description="verify token response",
+     *         @MediaType(
+     *             mediaType="application/json",
+     *             @Schema(
+     *                 allOf={
+     *                     @Schema(ref="#/components/schemas/ApiResponse"),
+     *                 }
+     *             )
+     *         )
+     *     )
+     *  )
+     */
+
+    public function verify()
+    {
+        return response_code();
+    }
+
+    /**
      * @Post (
-     *     path="/refresh",
-     *     tags={"Account"},
+     *     path="/token/refresh",
+     *     tags={"Token"},
      *     summary="JWT token refresh",
      *     security={{"bearerAuth":{}}},
      *     @Response(

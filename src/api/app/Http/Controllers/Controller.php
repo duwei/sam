@@ -15,8 +15,8 @@ use OpenApi\Annotations\SecurityScheme;
  *
  * @Info(
  *     version="1.0.0",
- *     title="Api",
- *     description="Api documentation",
+ *     title="SAM",
+ *     description="SAM Api documentation",
  *     @Contact(
  *         email="duweiwork@gmail.com",
  *         name="duwei"
