@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Http\ApiResponse;
 use App\Models\Service;
 use App\Models\ThirdParty;
