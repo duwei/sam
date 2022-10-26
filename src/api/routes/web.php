@@ -20,10 +20,12 @@ $router->get('/', function () use ($router) {
 $router->group(['middleware' => ['throttle:30,1']], function () use ($router) {
     $router->get('/callback', 'ApiController@callback');
 
+    $router->post('/tess/login', 'ApiController@login');
     $router->get('/me', 'ApiController@me');
     $router->get('/success', 'ApiController@success');
     $router->get('/token/verify', 'ApiController@verify');
     $router->post('/token/refresh', 'ApiController@refresh');
+    $router->get('/token/invalidate', 'ApiController@logout');
 
     $router->get('/services', 'ServiceController@index');
     $router->post('/service/register', 'ServiceController@create');
@@ -36,6 +38,8 @@ $router->get('login', function () use ($router) {
     $query = http_build_query([
         'client_id' => '5',
         'redirect_uri' => 'http://211.110.209.62:9191/api/callback',
+//        'client_id' => '6',
+//        'redirect_uri' => 'http://localhost:9090/api/callback',
         'response_type' => 'code',
         'state' => 'service_id=1',
         'scope' => '*',
@@ -45,9 +49,11 @@ $router->get('login', function () use ($router) {
 
 $router->get('google_login', function () use ($router) {
     $query = http_build_query([
+//        tess google client_id
+//        'client_id' => '1092030563161-5s3v1757qlvsupikp1oj72vc7l1v2152.apps.googleusercontent.com',
         'client_id' => '272393273254-8tvks1u0o0m64er3t04kf2tk9lbda366.apps.googleusercontent.com',
-//        'redirect_uri' => 'https://tessverso.io/sam/api/callback',
-        'redirect_uri' => 'http://localhost:9090/api/callback',
+        'redirect_uri' => 'https://tessverso.io/sam/api/callback',
+//        'redirect_uri' => 'http://localhost:9090/api/callback',
         'response_type' => 'code',
         'state' => 'service_id=2',
         'access_type' => 'offline',

@@ -36,6 +36,7 @@ class ApiResponse extends JsonResponse
     const THIRD_PARTY_ERROR   = 7;
     const SERVICE_ID_MISSING  = 8;
     const INVALID_SERVICE_ID  = 9;
+    const SERVER_ERROR        = 10;
 
     public function __construct($code = self::RET_OK, $data = null, $status = 200)
     {

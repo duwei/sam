@@ -7,6 +7,8 @@ use App\Models\ThirdParty;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Env;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
@@ -23,6 +25,7 @@ use OpenApi\Annotations\Schema;
 use OpenApi\Annotations\Items;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Facades\JWTFactory;
 use Tymon\JWTAuth\Facades\JWTProvider;
 use Tymon\JWTAuth\JWT;
 use Tymon\JWTAuth\Manager;
@@ -36,7 +39,7 @@ class ApiController extends Controller
     public function __construct()
     {
         $this->fields = ['id', 'password'];
-        $this->middleware('auth:api', ['except' => ['register', 'callback', 'success']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'callback', 'success']]);
     }
     /**
      * @Get (
@@ -122,29 +125,10 @@ class ApiController extends Controller
                     ]
                 ]);
                 $userInfo = json_decode((string)$ret->getBody(), true);
-                $user = User::firstOrCreate([
-                    'third_party_id' => ThirdParty::TESS,
-                    'third_party_user_id' => $userInfo['id'],
-                ], [
-                    'third_party_user_info' => $ret->getBody(),
-                    'name' => $userInfo['name'],
-                    'email' => $userInfo['email'],
-                    'image' => '',
-                    'profile' => ''
-                ]);
-
-                $password = Str::uuid();
-                $user->password = app('hash')->make($password);
-                $user->token_type = $tokenInfo['token_type'];
-                $user->expires_in = $tokenInfo['expires_in'];
-                $user->access_token = $tokenInfo['access_token'];
-                $user->refresh_token = $tokenInfo['refresh_token'];
-                $user->save();
-
-                $user->password = $password;
-                $credentials = $user->only($this->fields);
-
-                $token = auth('api')->attempt($credentials);
+                $token = $this->createOrUpdateUser(
+                    ThirdParty::TESS, $userInfo['id'], $userInfo, $tokenInfo);
+                // todo token ttl
+//                auth('api')->factory()->setTTL();
                 $successUri = is_null($service->client_uri) ? '/success' : $service->client_uri;
                 return redirect($successUri . '#' . $token);
 //            case ThirdParty::FACEBOOK:
@@ -152,29 +136,9 @@ class ApiController extends Controller
             case ThirdParty::GOOGLE:
                 $parser = new Parser(new JoseEncoder());
                 $userInfo = $parser->parse($tokenInfo['id_token'])->claims()->all();
-                $user = User::firstOrCreate([
-                    'third_party_id' => ThirdParty::GOOGLE,
-                    'third_party_user_id' => $userInfo['sub'],
-                ], [
-                    'third_party_user_info' => json_encode($userInfo),
-                    'name' => $userInfo['name'],
-                    'email' => $userInfo['email'],
-                    'image' => $userInfo['picture'],
-                    'profile' => ''
-                ]);
-
-                $password = Str::uuid();
-                $user->password = app('hash')->make($password);
-                $user->token_type = $tokenInfo['token_type'];
-                $user->expires_in = $tokenInfo['expires_in'];
-                $user->access_token = $tokenInfo['access_token'];
-//                $user->refresh_token = $tokenInfo['refresh_token'];
-                $user->save();
-
-                $user->password = $password;
-                $credentials = $user->only($this->fields);
-
-                $token = auth('api')->attempt($credentials);
+                $token = $this->createOrUpdateUser(
+                    ThirdParty::GOOGLE, $userInfo['sub'], $userInfo, $tokenInfo
+                );
                 $successUri = is_null($service->client_uri) ? '/success' : $service->client_uri;
                 return redirect($successUri . '#' . $token);
         }
@@ -185,6 +149,88 @@ class ApiController extends Controller
     public function success(Request $request)
     {
         return 'success';
+    }
+
+    /**
+     * @Post (
+     *     path="/tess/login",
+     *     tags={"Account"},
+     *     summary="tess user login",
+     *     @RequestBody(
+     *         @MediaType(
+     *             mediaType="application/json",
+     *             @Schema(
+     *                type="object",
+     *                @Property(
+     *                  property="password",
+     *                  description="user password",
+     *                  type="string"
+     *                ),
+     *                @Property(
+     *                  property="email",
+     *                  description="user email",
+     *                  type="string"
+     *                ),
+     *                example={
+     *                 "password": "password",
+     *                 "email": "tom@hotmail.com"
+     *                }
+     *             )
+     *          )
+     *     ),
+     *     @Response(
+     *         response="200",
+     *         description="login user response",
+     *         @MediaType(
+     *             mediaType="application/json",
+     *             @Schema(
+     *                 allOf={
+     *                     @Schema(ref="#/components/schemas/ApiResponse"),
+     *                     @Schema (
+     *                         @Property(
+     *                             property="data",
+     *                             description="response data",
+     *                             ref="#/components/schemas/JWTToken"
+     *                         )
+     *                     )
+     *                 }
+     *             )
+     *         )
+     *     )
+     *  )
+     */
+    public function login(Request $request)
+    {
+        $credentials = $request->only(['email', 'password']);
+
+        $tess = Env::get('TESS_URI');
+        if (is_null($tess)) {
+            throw new Exception('TESS_URI is not set.');
+        }
+        $client = new \GuzzleHttp\Client;
+        $ret = json_decode($client->request('POST', $tess . '/login', [
+            'json' => $credentials
+        ])->getBody()->getContents(), true);
+        if (isset($ret['code']) && $ret['code'] == 0) {
+            $tokenInfo = $ret['data'];
+            $headers = [
+                'Authorization' => 'Bearer ' . $tokenInfo['access_token'],
+                'Accept'        => 'application/json',
+            ];
+            $ret = json_decode($client->request('GET', $tess . '/me', [
+                'headers' => $headers
+            ])->getBody()->getContents(), true);
+            if (isset($ret['code']) && $ret['code'] == 0) {
+                $userInfo = $ret['data'];
+                $token = $this->createOrUpdateUser(
+                    ThirdParty::TESS, $userInfo['id'], $userInfo, $tokenInfo);
+                return $this->respondWithToken($token);
+            } else {
+                return response_code(ApiResponse::SERVER_ERROR);
+            }
+        } else {
+            return response_code(ApiResponse::BAD_REQUEST);
+        }
     }
 
     /**
@@ -282,6 +328,31 @@ class ApiController extends Controller
     {
         return $this->respondWithToken(auth('api')->refresh());
     }
+    /**
+     * @Get (
+     *     path="/token/invalidate",
+     *     tags={"Token"},
+     *     summary="invalidate current token",
+     *     security={{"bearerAuth":{}}},
+     *     @Response(
+     *         response="200",
+     *         description="invalidate current token response",
+     *         @MediaType(
+     *             mediaType="application/json",
+     *             @Schema(
+     *                 allOf={
+     *                     @Schema(ref="#/components/schemas/ApiResponse"),
+     *                 }
+     *             )
+     *         )
+     *     )
+     *  )
+     */
+    public function logout()
+    {
+        auth("api")->logout();
+        return response_code();
+    }
 
     /**
      * @Schema(
@@ -318,5 +389,37 @@ class ApiController extends Controller
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL() * 60
         ]);
+    }
+
+    private function createOrUpdateUser($third_party_id, $third_party_uid, $userInfo, $tokenInfo)
+    {
+        $accessToken = DB::transaction(function () use (
+            $third_party_id, $third_party_uid, $userInfo, $tokenInfo) {
+            $user = User::firstOrCreate([
+                'third_party_id' => $third_party_id,
+                'third_party_user_id' => $third_party_uid,
+            ], [
+                'third_party_user_info' => json_encode($userInfo),
+                'name' => $userInfo['name'],
+                'email' => $userInfo['email'],
+                'image' => isset($userInfo['picture']) ? $userInfo['picture'] : '',
+                'profile' => isset($userInfo['profile']) ? $userInfo['profile'] : ''
+            ]);
+
+            $password = str::uuid();
+            $user->password = app('hash')->make($password);
+            $user->token_type = $tokenInfo['token_type'];
+            $user->expires_in = $tokenInfo['expires_in'];
+            $user->access_token = $tokenInfo['access_token'];
+            $user->refresh_token = isset($tokenInfo['refresh_token']) ? $tokenInfo['refresh_token']: '';
+            $user->save();
+
+            $user->password = $password;
+            $credentials = $user->only($this->fields);
+
+            $token = auth('api')->attempt($credentials);
+            return $token;
+        }, 5);
+        return $accessToken;
     }
 }

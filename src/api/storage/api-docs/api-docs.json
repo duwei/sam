@@ -72,6 +72,62 @@
                 }
             }
         },
+        "/tess/login": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "tess user login",
+                "operationId": "56916a94ab139388d56df13c0d6505d1",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "password": {
+                                        "description": "user password",
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "description": "user email",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "password": "password",
+                                    "email": "tom@hotmail.com"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "login user response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/JWTToken"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/me": {
             "get": {
                 "tags": [
@@ -161,6 +217,36 @@
                                             },
                                             "type": "object"
                                         },
+                                        {
+                                            "$ref": "#/components/schemas/ApiResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/token/invalidate": {
+            "get": {
+                "tags": [
+                    "Token"
+                ],
+                "summary": "invalidate current token",
+                "operationId": "06a69dd9767adbaae390ebee60f30ac0",
+                "responses": {
+                    "200": {
+                        "description": "invalidate current token response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
                                         {
                                             "$ref": "#/components/schemas/ApiResponse"
                                         }
