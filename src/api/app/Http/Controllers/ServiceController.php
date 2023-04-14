@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Http\ApiResponse;
 use App\Models\InquiryCategory;
 use App\Models\InquiryStatus;
+use App\Models\ThirdParty;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
@@ -65,9 +66,9 @@ class ServiceController extends Controller
      *             @Schema(
      *                type="object",
      *                @Property(
-     *                    property="third_party_id",
-     *                    type="number",
-     *                    description="third party id: 1 => Google, 2 => Facebook, 3 => Tess",
+     *                    property="third_party",
+     *                    type="string",
+     *                    description="third party: Google, Facebook, Tess",
      *                ),
      *                @Property(
      *                  property="client_id",
@@ -95,8 +96,8 @@ class ServiceController extends Controller
      *                  type="string"
      *                ),
      *                example={
-     *                 "third_party_id": "3",
-     *                 "client_id": "4",
+     *                 "third_party": "Google",
+     *                 "client_id": "98eb7a8c-636f-4bb1-8108-f7cf38af09cb",
      *                 "client_secret": "XCMx7GWjvHqqF72IzGjcNoLh9N59ksfK1rHcyPhj",
      *                 "redirect_uri": "https://tessverso.io/sam/api/callback",
      *                 "client_uri": "http://localhost:3000/googlelogin/redirect",
@@ -119,7 +120,7 @@ class ServiceController extends Controller
      *                             description="response data",
      *                                    type="object",
      *                                    @Property(
-     *                                      property="service_id",
+     *                                      property="service",
      *                                      description="service state id",
      *                                      type="string"
      *                                    ),
@@ -134,13 +135,14 @@ class ServiceController extends Controller
     public function create(Request $request)
     {
         $this->validate($request, [
-            'third_party_id' => 'required|exists:third_parties,id',
+            'third_party' => 'required|exists:third_parties,name',
             'client_id' => 'required|string',
             'client_secret' => 'required|string',
             'redirect_uri' => 'required|string',
             'scope' => 'required|string',
             'client_uri' => 'string',
         ]);
+        $request->merge(['third_party_id' => ThirdParty::whereName($request->third_party)->first()->id]);
         $service = Service::create($request->all());
 
         return response_data(['service_id' => $service->id]);
@@ -159,12 +161,12 @@ class ServiceController extends Controller
      *                @Property(
      *                  property="id",
      *                  description="service id",
-     *                  type="number"
+     *                  type="string"
      *                ),
      *                @Property(
-     *                    property="third_party_id",
-     *                    type="number",
-     *                    description="third party id: 1 => Google, 2 => Facebook, 3 => Tess",
+     *                    property="third_party",
+     *                    type="string",
+     *                    description="third party Google, Facebook, Tess",
      *                ),
      *                @Property(
      *                  property="client_id",
@@ -192,9 +194,9 @@ class ServiceController extends Controller
      *                  type="string"
      *                ),
      *                example={
-     *                 "id": "1",
-     *                 "third_party_id": "3",
-     *                 "client_id": "4",
+     *                 "id": "Srv2AH0J9yv",
+     *                 "third_party": "Google",
+     *                 "client_id": "98eb7a8c-636f-4bb1-8108-f7cf38af09cb",
      *                 "client_secret": "XCMx7GWjvHqqF72IzGjcNoLh9N59ksfK1rHcyPhj",
      *                 "redirect_uri": "https://tessverso.io/sam/api/callback",
      *                 "client_uri": "http://localhost:3000/googlelogin/redirect",
@@ -225,13 +227,14 @@ class ServiceController extends Controller
     {
         $this->validate($request, [
             'id' => 'required|exists:services,id',
-            'third_party_id' => 'exists:third_parties,id',
+            'third_party' => 'required|exists:third_parties,name',
             'client_id' => 'string',
             'client_secret' => 'string',
             'redirect_uri' => 'string',
             'client_uri' => 'string',
             'scope' => 'string',
         ]);
+        $request->merge(['third_party_id' => ThirdParty::whereName($request->third_party)->first()->id]);
         Service::find($request->get('id'))->updateOrFail($request->all());
 
         return response_code();
@@ -250,17 +253,17 @@ class ServiceController extends Controller
      *                @Property(
      *                  property="id",
      *                  description="service id",
-     *                  type="number",
+     *                  type="string",
      *                ),
      *                example={
-     *                 "id": 1
+     *                 "id": "Srv2AH0J9yv"
      *                }
      *             )
      *          )
      *     ),
      *     @Response(
      *         response="200",
-     *         description="inquiry categories response",
+     *         description="services response",
      *         @MediaType(
      *             mediaType="application/json",
      *             @Schema(

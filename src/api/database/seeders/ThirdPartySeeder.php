@@ -29,8 +29,8 @@ class ThirdPartySeeder extends Seeder
             ],
             [
                 'name' => 'Tess',
-                'oauth_uri'     => 'http://211.110.209.62:8081/api/oauth/token',
-                'profile_uri'     => 'http://211.110.209.62:8081/api/api/user',
+                'oauth_uri'     => 'http://172.20.20.198:8080/api/oauth/token',
+                'profile_uri'     => 'http://172.20.20.198:8080/api/api/user',
             ],
         ]);
     }

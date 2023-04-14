@@ -2,6 +2,7 @@ version: '3'
 
 networks:
   laravel:
+    driver: bridge
 
 services:
   site:
@@ -25,8 +26,8 @@ services:
     image: mariadb:latest
     restart: unless-stopped
     tty: true
-    ports:
-      - 4307:3306
+    # ports:
+      # - 4307:3306
     volumes:
       - ./data:/var/lib/mysql
     environment:
@@ -45,6 +46,7 @@ services:
       dockerfile: php.dockerfile
     volumes:
       - ./src:/var/www/html:delegated
+    privileged: true
     networks:
       - laravel
 

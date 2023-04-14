@@ -64,7 +64,7 @@ class ApiController extends Controller
      *                ),
      *                example={
      *                 "code": "def50200d92a61b414fbe81d409f3698c30eb7a549faf69aae0d451c6f766d8bfcb46056c94932ce038a9260e81668c61c7b3c6f90c4ec32048f6dc5ccd1a9bf694fd73ef672bfff26bbf0c030391722340d34b37983d8ba27f26e389f6ef06e4480364bbbf9cb35c4f4dd8e7c7d333e36ef7656df98706b07a5d83614102644bae58a694623685ca843ae322360e67a3df026e6d9e717cbde0b8b803b954d7077345b78eb96ef0a5f4fa3ed418c8abbc6cbfffe66d96badc17895d8bf2913869189f1da75d4b67bcfeaa6a9aa5482b623ac83dba639d172a12510ce4dae91d581ce9ac744a3d80159eb4cbd136b0d51f07b03c27117c158b009dd5cdbd671a662b58020bf7c35ac7534d73c8be0976b40ccfb1c68246fd0d0bad07c6b7fba4c692b411ed885bda919ca30c36c5459ed22934c729e191c68d95e8c71ebb663b6542ec0445b96cedef5468e3face2183c79c68db96d55a69afab1a4df35ca809ad9e1e7003d52",
-     *                 "state": "service_id=1",
+     *                 "state": "service_id=Srv2AH0J9yv",
      *                }
      *             )
      *          )
@@ -127,10 +127,10 @@ class ApiController extends Controller
                 ]);
                 $userInfo = json_decode((string)$ret->getBody(), true);
                 $token = $this->createOrUpdateUser(
-                    ThirdParty::TESS, $userInfo['id'], $userInfo, $tokenInfo);
+                    ThirdParty::TESS, $service->id, $userInfo['id'], $userInfo, $tokenInfo);
                 // todo token ttl
 //                auth('api')->factory()->setTTL();
-                $successUri = is_null($service->client_uri) ? '/success' : $service->client_uri;
+                $successUri = is_null($service->client_uri) || empty($service->client_uri) ? '/success' : $service->client_uri;
                 return redirect($successUri . '#' . $token);
 //            case ThirdParty::FACEBOOK:
 //                break;
@@ -138,9 +138,9 @@ class ApiController extends Controller
                 $parser = new Parser(new JoseEncoder());
                 $userInfo = $parser->parse($tokenInfo['id_token'])->claims()->all();
                 $token = $this->createOrUpdateUser(
-                    ThirdParty::GOOGLE, $userInfo['sub'], $userInfo, $tokenInfo
+                    ThirdParty::GOOGLE, $service->id, $userInfo['sub'], $userInfo, $tokenInfo
                 );
-                $successUri = is_null($service->client_uri) ? '/success' : $service->client_uri;
+                $successUri = is_null($service->client_uri) || empty($service->client_uri) ? '/success' : $service->client_uri;
                 return redirect($successUri . '#' . $token);
         }
         // todo: add refresh user info task
@@ -157,6 +157,7 @@ class ApiController extends Controller
      *     path="/tess/login",
      *     tags={"Account"},
      *     summary="tess user login",
+     *     deprecated=true,
      *     @RequestBody(
      *         @MediaType(
      *             mediaType="application/json",
@@ -172,9 +173,15 @@ class ApiController extends Controller
      *                  description="user email",
      *                  type="string"
      *                ),
+     *                @Property(
+     *                  property="service_id",
+     *                  description="service id",
+     *                  type="string"
+     *                ),
      *                example={
      *                 "password": "password",
-     *                 "email": "tom@hotmail.com"
+     *                 "email": "tom@hotmail.com",
+     *                 "service_id": "Srvrr9ENY7f",
      *                }
      *             )
      *          )
@@ -224,7 +231,7 @@ class ApiController extends Controller
             if (isset($ret['code']) && $ret['code'] == 0) {
                 $userInfo = $ret['data'];
                 $token = $this->createOrUpdateUser(
-                    ThirdParty::TESS, $userInfo['id'], $userInfo, $tokenInfo);
+                    ThirdParty::TESS, $request->service_id, $userInfo['id'], $userInfo, $tokenInfo);
                 return $this->respondWithToken($token);
             } else {
                 return response_code(ApiResponse::SERVER_ERROR);
@@ -392,13 +399,14 @@ class ApiController extends Controller
         ]);
     }
 
-    private function createOrUpdateUser($third_party_id, $third_party_uid, $userInfo, $tokenInfo)
+    private function createOrUpdateUser($third_party_id, $service_id, $third_party_uid, $userInfo, $tokenInfo)
     {
         $accessToken = DB::transaction(function () use (
-            $third_party_id, $third_party_uid, $userInfo, $tokenInfo) {
+            $third_party_id, $service_id, $third_party_uid, $userInfo, $tokenInfo) {
             $user = User::firstOrCreate([
                 'third_party_id' => $third_party_id,
                 'third_party_user_id' => $third_party_uid,
+                'service_id' => $service_id,
             ], [
                 'third_party_user_info' => json_encode($userInfo),
                 'name' => $userInfo['name'],

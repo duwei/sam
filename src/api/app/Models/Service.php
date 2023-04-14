@@ -7,6 +7,8 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Laravel\Lumen\Auth\Authorizable;
 use OpenApi\Annotations\Schema;
 use OpenApi\Annotations\Property;
@@ -17,7 +19,7 @@ use OpenApi\Annotations\Property;
  *     type="object",
  *     @Property(
  *         property="id",
- *         type="number",
+ *         type="string",
  *         description="service id"
  *     ),
  *     @Property(
@@ -55,8 +57,10 @@ use OpenApi\Annotations\Property;
  */
 class Service extends Model
 {
+    public $incrementing = false;
+
     protected $fillable = [
-        'third_party_id', 'client_id', 'client_secret', 'redirect_uri', 'scope', 'client_uri'
+        'third_party_id', 'client_id', 'client_secret', 'redirect_uri', 'scope', 'client_uri', 'id'
     ];
 
     public function third_party()
@@ -67,4 +71,26 @@ class Service extends Model
     protected $hidden = [
         'created_at', 'updated_at', 'third_party_id'
     ];
+
+    public static function generateServiceid(int $length = 8): string
+    {
+        $service_id = 'Srv' . Str::random($length);
+        $exists = DB::table('services')
+            ->where('id', '=', $service_id)
+            ->get(['id']);//Find matches for id = generated id
+        if (isset($exists[0]->id)) {//id exists in users table
+            return self::generateServiceid();//Retry with another generated id
+        }
+
+        return $service_id;//Return the generated id as it does not exist in the DB
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        self::creating(function($model){
+            $model->id = self::generateServiceid();
+        });
+    }
 }

@@ -11,7 +11,7 @@
     },
     "servers": [
         {
-            "url": "/sam/api",
+            "url": "/api",
             "description": "development"
         }
     ],
@@ -40,7 +40,7 @@
                                 "type": "object",
                                 "example": {
                                     "code": "def50200d92a61b414fbe81d409f3698c30eb7a549faf69aae0d451c6f766d8bfcb46056c94932ce038a9260e81668c61c7b3c6f90c4ec32048f6dc5ccd1a9bf694fd73ef672bfff26bbf0c030391722340d34b37983d8ba27f26e389f6ef06e4480364bbbf9cb35c4f4dd8e7c7d333e36ef7656df98706b07a5d83614102644bae58a694623685ca843ae322360e67a3df026e6d9e717cbde0b8b803b954d7077345b78eb96ef0a5f4fa3ed418c8abbc6cbfffe66d96badc17895d8bf2913869189f1da75d4b67bcfeaa6a9aa5482b623ac83dba639d172a12510ce4dae91d581ce9ac744a3d80159eb4cbd136b0d51f07b03c27117c158b009dd5cdbd671a662b58020bf7c35ac7534d73c8be0976b40ccfb1c68246fd0d0bad07c6b7fba4c692b411ed885bda919ca30c36c5459ed22934c729e191c68d95e8c71ebb663b6542ec0445b96cedef5468e3face2183c79c68db96d55a69afab1a4df35ca809ad9e1e7003d52",
-                                    "state": "service_id=1"
+                                    "state": "service_id=Srv2AH0J9yv"
                                 }
                             }
                         }
@@ -91,12 +91,17 @@
                                     "email": {
                                         "description": "user email",
                                         "type": "string"
+                                    },
+                                    "service_id": {
+                                        "description": "service id",
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object",
                                 "example": {
                                     "password": "password",
-                                    "email": "tom@hotmail.com"
+                                    "email": "tom@hotmail.com",
+                                    "service_id": "Srvrr9ENY7f"
                                 }
                             }
                         }
@@ -125,7 +130,8 @@
                             }
                         }
                     }
-                }
+                },
+                "deprecated": true
             }
         },
         "/me": {
@@ -312,9 +318,9 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "third_party_id": {
-                                        "description": "third party id: 1 => Google, 2 => Facebook, 3 => Tess",
-                                        "type": "number"
+                                    "third_party": {
+                                        "description": "third party: Google, Facebook, Tess",
+                                        "type": "string"
                                     },
                                     "client_id": {
                                         "description": "client id, from third party",
@@ -339,8 +345,8 @@
                                 },
                                 "type": "object",
                                 "example": {
-                                    "third_party_id": "3",
-                                    "client_id": "4",
+                                    "third_party": "Google",
+                                    "client_id": "98eb7a8c-636f-4bb1-8108-f7cf38af09cb",
                                     "client_secret": "XCMx7GWjvHqqF72IzGjcNoLh9N59ksfK1rHcyPhj",
                                     "redirect_uri": "https://tessverso.io/sam/api/callback",
                                     "client_uri": "http://localhost:3000/googlelogin/redirect",
@@ -362,7 +368,7 @@
                                                 "data": {
                                                     "description": "response data",
                                                     "properties": {
-                                                        "service_id": {
+                                                        "service": {
                                                             "description": "service state id",
                                                             "type": "string"
                                                         }
@@ -397,11 +403,11 @@
                                 "properties": {
                                     "id": {
                                         "description": "service id",
-                                        "type": "number"
+                                        "type": "string"
                                     },
-                                    "third_party_id": {
-                                        "description": "third party id: 1 => Google, 2 => Facebook, 3 => Tess",
-                                        "type": "number"
+                                    "third_party": {
+                                        "description": "third party Google, Facebook, Tess",
+                                        "type": "string"
                                     },
                                     "client_id": {
                                         "description": "client id, from third party",
@@ -426,9 +432,9 @@
                                 },
                                 "type": "object",
                                 "example": {
-                                    "id": "1",
-                                    "third_party_id": "3",
-                                    "client_id": "4",
+                                    "id": "Srv2AH0J9yv",
+                                    "third_party": "Google",
+                                    "client_id": "98eb7a8c-636f-4bb1-8108-f7cf38af09cb",
                                     "client_secret": "XCMx7GWjvHqqF72IzGjcNoLh9N59ksfK1rHcyPhj",
                                     "redirect_uri": "https://tessverso.io/sam/api/callback",
                                     "client_uri": "http://localhost:3000/googlelogin/redirect",
@@ -473,12 +479,12 @@
                                 "properties": {
                                     "id": {
                                         "description": "service id",
-                                        "type": "number"
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object",
                                 "example": {
-                                    "id": 1
+                                    "id": "Srv2AH0J9yv"
                                 }
                             }
                         }
@@ -486,7 +492,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "inquiry categories response",
+                        "description": "services response",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -543,7 +549,7 @@
                 "properties": {
                     "id": {
                         "description": "service id",
-                        "type": "number"
+                        "type": "string"
                     },
                     "third_party": {
                         "$ref": "#/components/schemas/ThirdParty"
