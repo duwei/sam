@@ -1,24 +1,27 @@
-# Lumen PHP Framework
+# SAM OAUTH2 认证服务
 
-[![Build Status](https://travis-ci.org/laravel/lumen-framework.svg)](https://travis-ci.org/laravel/lumen-framework)
-[![Total Downloads](https://img.shields.io/packagist/dt/laravel/lumen-framework)](https://packagist.org/packages/laravel/lumen-framework)
-[![Latest Stable Version](https://img.shields.io/packagist/v/laravel/lumen-framework)](https://packagist.org/packages/laravel/lumen-framework)
-[![License](https://img.shields.io/packagist/l/laravel/lumen)](https://packagist.org/packages/laravel/lumen-framework)
+# 使用示例
 
-Laravel Lumen is a stunningly fast PHP micro-framework for building web applications with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Lumen attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as routing, database abstraction, queueing, and caching.
+1. [注册登录账号](http://211.110.209.62:7070/api/)
+1.获取 client_id 及 client_secret（redirect_uri应为 SAM 服务的 /api/callback）
+     - 通过Google获取
+     - Tess测试服务器获取
+      1. 通过后台直接创建
+   <pre>
+    docker compose run -w /var/www/html/api --rm artisan passport:client 
+   </pre>
+      2. 或[通过JSON API 使用客户端创建](https://laravel.com/docs/10.x/passport#clients-json-api)
 
-## Official Documentation
-
-Documentation for the framework can be found on the [Lumen website](https://lumen.laravel.com/docs).
-
-## Contributing
-
-Thank you for considering contributing to Lumen! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Lumen, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Lumen framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. 使用上一步创建的 client_id和 client_secret 到SAM注册为服务
+   -  [SAM API文档](http://172.20.20.198:9090/api/documentation)
+   -  创建服务的接口是：/service/register
+   -  接口中的 client_uri 可以为空，或使用自己的回调地址
+   -  记录下返回的 service_id
+1. 使用OAUTH服务发起登录请求，[请求地址]('http://211.110.209.62:7070/api/oauth/authorize?), 参数如下：
+   -  client_id => {client_id}
+   -  redirect_uri => http://sam.site/api/callback
+   -  response_type => code
+   -  state => 'service_id={service_id}'
+   -  scope => '*'
+1. 登录成功后获得access_token
+   - 通过SAM接口中的 /me 服务即可获取用户信息 
