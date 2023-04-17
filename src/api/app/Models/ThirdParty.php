@@ -32,6 +32,7 @@ class ThirdParty extends Model
     const GOOGLE   = 1;
     const FACEBOOK = 2;
     const TESS     = 3;
+    const KAKAO    = 4;
 
     protected $hidden = [
         'oauth_uri', 'profile_uri', 'created_at', 'updated_at'

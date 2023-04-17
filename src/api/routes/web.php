@@ -60,15 +60,22 @@ $router->get('login2', function () use ($router) {
 
 $router->get('google_login', function () use ($router) {
     $query = http_build_query([
-//        tess google client_id
-//        'client_id' => '1092030563161-5s3v1757qlvsupikp1oj72vc7l1v2152.apps.googleusercontent.com',
-        'client_id' => '272393273254-8tvks1u0o0m64er3t04kf2tk9lbda366.apps.googleusercontent.com',
-        'redirect_uri' => 'https://tessverso.io/sam/api/callback',
-//        'redirect_uri' => 'http://localhost:9090/api/callback',
+        'client_id' => '1092030563161-5s3v1757qlvsupikp1oj72vc7l1v2152.apps.googleusercontent.com',
+        'redirect_uri' => 'https://tessverso.io/api/redirect.php',
         'response_type' => 'code',
-        'state' => 'service_id=2',
+        'state' => 'service_id=SrvYLUkJpnh',
         'access_type' => 'offline',
         'scope' => 'openid profile email',
     ]);
     return redirect('https://accounts.google.com/o/oauth2/v2/auth?' . $query);
+});
+
+$router->get('kakao_login', function () use ($router) {
+    $query = http_build_query([
+        'client_id' => 'd73cb37e768ed401e970463738f80d0d',
+        'redirect_uri' => 'http://172.20.20.198:9090/api/callback',
+        'response_type' => 'code',
+        'state' => 'service_id=SrvhcvSewh6',
+    ]);
+    return redirect('https://kauth.kakao.com/oauth/authorize?' . $query);
 });

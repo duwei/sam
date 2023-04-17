@@ -32,6 +32,11 @@ class ThirdPartySeeder extends Seeder
                 'oauth_uri'     => 'http://172.20.20.198:8080/api/oauth/token',
                 'profile_uri'     => 'http://172.20.20.198:8080/api/api/user',
             ],
+            [
+                'name' => 'Kakao',
+                'oauth_uri'     => 'https://kauth.kakao.com/oauth/token',
+                'profile_uri'     => 'https://kapi.kakao.com/v2/user/me',
+            ],
         ]);
     }
 }

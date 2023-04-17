@@ -118,6 +118,18 @@ class ApiController extends Controller
         ]);
         $tokenInfo = json_decode((string)$ret->getBody(), true);
         switch ($service->third_party->id) {
+            case ThirdParty::KAKAO:
+                $ret = $http->request('GET', $service->third_party->profile_uri, [
+                    'headers' => [
+                        'Accept'     => 'application/json',
+                        'Authorization' => 'Bearer '. $tokenInfo['access_token'],
+                    ]
+                ]);
+                $userInfo = json_decode((string)$ret->getBody(), true);
+                $token = $this->createOrUpdateUser(
+                    ThirdParty::KAKAO, $service->id, $userInfo['id'], $userInfo, $tokenInfo);
+                $successUri = is_null($service->client_uri) || empty($service->client_uri) ? '/success' : $service->client_uri;
+                return redirect($successUri . '#' . $token);
             case ThirdParty::TESS:
                 $ret = $http->request('GET', $service->third_party->profile_uri, [
                     'headers' => [
@@ -401,18 +413,23 @@ class ApiController extends Controller
 
     private function createOrUpdateUser($third_party_id, $service_id, $third_party_uid, $userInfo, $tokenInfo)
     {
+        $name = $userInfo['name'] ?? $userInfo['properties']['nickname'] ?? '';
+        $email = $userInfo['email'] ?? $userInfo['kakao_account']['email'] ?? '';
+        $image = $userInfo['picture'] ?? $userInfo['properties']['profile_image'] ?? '';
+        $profile = $userInfo['profile'] ?? '';
+
         $accessToken = DB::transaction(function () use (
-            $third_party_id, $service_id, $third_party_uid, $userInfo, $tokenInfo) {
+            $third_party_id, $service_id, $third_party_uid, $userInfo, $tokenInfo, $name, $email, $image, $profile) {
             $user = User::firstOrCreate([
                 'third_party_id' => $third_party_id,
                 'third_party_user_id' => $third_party_uid,
                 'service_id' => $service_id,
             ], [
                 'third_party_user_info' => json_encode($userInfo),
-                'name' => $userInfo['name'],
-                'email' => $userInfo['email'],
-                'image' => isset($userInfo['picture']) ? $userInfo['picture'] : '',
-                'profile' => isset($userInfo['profile']) ? $userInfo['profile'] : ''
+                'name' => $name,
+                'email' => $email,
+                'image' => $image,
+                'profile' => $profile
             ]);
 
             $password = str::uuid();
@@ -420,7 +437,7 @@ class ApiController extends Controller
             $user->token_type = $tokenInfo['token_type'];
             $user->expires_in = $tokenInfo['expires_in'];
             $user->access_token = $tokenInfo['access_token'];
-            $user->refresh_token = isset($tokenInfo['refresh_token']) ? $tokenInfo['refresh_token']: '';
+            $user->refresh_token = $tokenInfo['refresh_token'] ?? '';
             $user->save();
 
             $user->password = $password;
