@@ -68,7 +68,7 @@ class ServiceController extends Controller
      *                @Property(
      *                    property="third_party",
      *                    type="string",
-     *                    description="third party: Google, Facebook, Tess",
+     *                    description="third party: Google, Facebook, Tess, Kakao",
      *                ),
      *                @Property(
      *                  property="client_id",

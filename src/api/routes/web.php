@@ -26,6 +26,7 @@ $router->group(['middleware' => ['throttle:30,1']], function () use ($router) {
     $router->get('/token/verify', 'ApiController@verify');
     $router->post('/token/refresh', 'ApiController@refresh');
     $router->get('/token/invalidate', 'ApiController@logout');
+    $router->get('/token/revoke', 'ApiController@logout');
 
     $router->get('/services', 'ServiceController@index');
     $router->post('/service/register', 'ServiceController@create');
@@ -49,13 +50,13 @@ $router->get('login', function () use ($router) {
 
 $router->get('login2', function () use ($router) {
     $query = http_build_query([
-        'client_id' => '98ecfaf0-4260-4465-853b-f0be98313676',
+        'client_id' => '1',
         'redirect_uri' => 'http://172.20.20.198:9090/api/callback',
         'response_type' => 'code',
-        'state' => 'service_id=Srvrr9ENY7f',
+        'state' => 'service_id=SrvGdxN8GSK',
         'scope' => '*',
     ]);
-    return redirect('http://211.110.209.62:7070/api/oauth/authorize?' . $query);
+    return redirect('http://172.20.20.198:8081/api/oauth/authorize?' . $query);
 });
 
 $router->get('google_login', function () use ($router) {

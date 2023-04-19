@@ -239,16 +239,16 @@
                 ]
             }
         },
-        "/token/invalidate": {
+        "/token/revoke": {
             "get": {
                 "tags": [
                     "Token"
                 ],
-                "summary": "invalidate current token",
-                "operationId": "06a69dd9767adbaae390ebee60f30ac0",
+                "summary": "revoke current token",
+                "operationId": "4056301e3e4890fd41f24f1684dcd4c8",
                 "responses": {
                     "200": {
-                        "description": "invalidate current token response",
+                        "description": "revoke current token response",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -319,7 +319,7 @@
                             "schema": {
                                 "properties": {
                                     "third_party": {
-                                        "description": "third party: Google, Facebook, Tess",
+                                        "description": "third party: Google, Facebook, Tess, Kakao",
                                         "type": "string"
                                     },
                                     "client_id": {

@@ -130,6 +130,7 @@ class ApiController extends Controller
                     ThirdParty::KAKAO, $service->id, $userInfo['id'], $userInfo, $tokenInfo);
                 $successUri = is_null($service->client_uri) || empty($service->client_uri) ? '/success' : $service->client_uri;
                 return redirect($successUri . '#' . $token);
+            case ThirdParty::DEV:
             case ThirdParty::TESS:
                 $ret = $http->request('GET', $service->third_party->profile_uri, [
                     'headers' => [
@@ -350,13 +351,13 @@ class ApiController extends Controller
     }
     /**
      * @Get (
-     *     path="/token/invalidate",
+     *     path="/token/revoke",
      *     tags={"Token"},
-     *     summary="invalidate current token",
+     *     summary="revoke current token",
      *     security={{"bearerAuth":{}}},
      *     @Response(
      *         response="200",
-     *         description="invalidate current token response",
+     *         description="revoke current token response",
      *         @MediaType(
      *             mediaType="application/json",
      *             @Schema(

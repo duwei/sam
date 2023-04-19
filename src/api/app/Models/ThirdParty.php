@@ -33,6 +33,7 @@ class ThirdParty extends Model
     const FACEBOOK = 2;
     const TESS     = 3;
     const KAKAO    = 4;
+    const DEV      = 5;
 
     protected $hidden = [
         'oauth_uri', 'profile_uri', 'created_at', 'updated_at'
