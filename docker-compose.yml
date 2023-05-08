@@ -21,6 +21,7 @@ services:
       - mysql
     networks:
       - laravel
+    restart: unless-stopped
 
   mysql:
     image: mariadb:latest
@@ -44,6 +45,7 @@ services:
     build:
       context: .
       dockerfile: php.dockerfile
+    restart: always
     volumes:
       - ./src:/var/www/html:delegated
     privileged: true
@@ -92,18 +94,18 @@ services:
     networks:
       - laravel
 
-  client:
-    build:
-      context: .
-      dockerfile: php.dockerfile
-    ports:
-      - 9090:8080
-    volumes:
-      - ./src:/var/www/html:delegated
-    working_dir: /var/www/html/client
-    user: laravel
-    entrypoint: ['php', '-S', '0.0.0.0:8080', '-t', 'public']
-    networks:
-      - laravel
-    links:
-      - site
+  # client:
+  #   build:
+  #     context: .
+  #     dockerfile: php.dockerfile
+  #   ports:
+  #     - 9090:8080
+  #   volumes:
+  #     - ./src:/var/www/html:delegated
+  #   working_dir: /var/www/html/client
+  #   user: laravel
+  #   entrypoint: ['php', '-S', '0.0.0.0:8080', '-t', 'public']
+  #   networks:
+  #     - laravel
+  #   links:
+  #     - site
